@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MainActivity"
         private const val KEY_UNSAVED_NOTE = "unsaved_note"
-        private const val START_DELAY_MS = 2000L // Ajusta el delay aquí (milisegundos)
+        private const val START_DELAY_MS = 4000L // Delay visible: 4 segundos
     }
 
     private val notesViewModel: NotesViewModel by viewModels()
@@ -49,6 +49,10 @@ class MainActivity : AppCompatActivity() {
         // Referencias UI
         editNote = findViewById(R.id.editNote)
         btnSave = findViewById(R.id.btnSave)
+
+        // Deshabilitar la UI durante el delay
+        editNote.isEnabled = false
+        btnSave.isEnabled = false
 
         // Restauración desde savedInstanceState (refuerzo)
         if (savedInstanceState != null) {
@@ -125,7 +129,10 @@ class MainActivity : AppCompatActivity() {
         if (startWorkExecuted) return
         startWorkExecuted = true
         Log.d(TAG, "executeStartWorkIfNeeded: ejecutando lógica de inicio tras delay")
-        Toast.makeText(this, "Prueba onStart (ejecutado tras delay)", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "¡Listo! Ahora puedes escribir tu nota.", Toast.LENGTH_LONG).show()
+        // Habilitar la UI después del delay
+        editNote.isEnabled = true
+        btnSave.isEnabled = true
         // Aquí puedes poner cualquier inicialización que quieras posponer
     }
     //endregion
@@ -149,6 +156,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Mensaje del onPause")
         // Guardar temporalmente la nota actual en el ViewModel
         notesViewModel.setNote(editNote.text.toString())
+        Toast.makeText(this, "onPause detectado", Toast.LENGTH_LONG).show()
     }
     //endregion
 
@@ -164,7 +172,7 @@ class MainActivity : AppCompatActivity() {
     //region onDestroy: limpieza final antes de destruir la Activity
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
+        Log.d(TAG, "Mensaje onDestroy")
         // Cancelar el job si la Activity se destruye antes de que termine el delay
         startDelayJob?.cancel()
     }
