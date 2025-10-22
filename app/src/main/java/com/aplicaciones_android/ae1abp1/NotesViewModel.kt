@@ -1,3 +1,4 @@
+//region Imports y declaración de clase
 package com.aplicaciones_android.ae1abp1
 
 import android.app.Application
@@ -7,16 +8,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+//endregion
 
+//region NotesViewModel: ViewModel para la gestión de la nota y persistencia con Room
 class NotesViewModel(application: Application) : AndroidViewModel(application) {
+    //region Constantes y companion object
     companion object {
         private const val TAG = "NotesViewModel"
     }
+    //endregion
 
+    //region Repositorio y base de datos (Room)
     // Repositorio basado en Room
     private val database = AppDatabase.getInstance(application)
     private val repository = NoteRepository(database.noteDao())
+    //endregion
 
+    //region LiveData y estado de la nota
     // LiveData que contiene la nota actual en edición
     private val _note = MutableLiveData<String>("")
     val note: LiveData<String> = _note
@@ -25,7 +33,9 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
     private var _savedNote: String? = null
     val savedNote: String?
         get() = _savedNote
+    //endregion
 
+    //region Inicialización: observar cambios en la base de datos
     init {
         // Recoger cambios desde la base de datos y actualizar LiveData
         viewModelScope.launch {
@@ -42,7 +52,9 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    //endregion
 
+    //region Métodos públicos para manipular la nota
     fun setNote(text: String) {
         _note.value = text
     }
@@ -55,9 +67,13 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
             Log.d(TAG, "Nota guardada en DB (length=${current.length})")
         }
     }
+    //endregion
 
+    //region Limpieza del ViewModel
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "onCleared() — ViewModel será destruido")
     }
+    //endregion
 }
+//endregion

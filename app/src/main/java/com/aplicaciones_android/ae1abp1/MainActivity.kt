@@ -1,3 +1,4 @@
+//region Imports y declaración de clase
 package com.aplicaciones_android.ae1abp1
 
 import android.os.Bundle
@@ -14,9 +15,12 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+//endregion
 
+//region MainActivity: Activity principal de la app de notas
 class MainActivity : AppCompatActivity() {
 
+    //region Constantes y variables globales
     companion object {
         private const val TAG = "MainActivity"
         private const val KEY_UNSAVED_NOTE = "unsaved_note"
@@ -32,7 +36,9 @@ class MainActivity : AppCompatActivity() {
     private var startReady = false
     private var startWorkExecuted = false
     private var startDelayJob: Job? = null
+    //endregion
 
+    //region onCreate: inicialización de la Activity y la UI
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Mensaje del onCreate")
@@ -64,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //region Botón para guardar la nota
         btnSave.setOnClickListener {
             val current = editNote.text.toString()
             notesViewModel.setNote(current)
@@ -71,17 +78,17 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "Nota guardada por el usuario (length=${current.length})")
             Toast.makeText(this, "Nota guardada", Toast.LENGTH_SHORT).show()
         }
+        //endregion
 
-        // Manejo de Insets para edge-to-edge
+        //region Ajuste de insets para edge-to-edge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        //endregion
 
-        // Programar el delay sin bloquear el hilo UI.
-        // Cuando expire el delay, si la Activity ya está en STARTED ejecutaremos la tarea de inicio;
-        // si aún no está STARTED, la tarea se ejecutará desde onStart().
+        //region Programar delay seguro entre onCreate y onStart
         startDelayJob = lifecycleScope.launch {
             delay(START_DELAY_MS)
             startReady = true
@@ -90,34 +97,40 @@ class MainActivity : AppCompatActivity() {
                 executeStartWorkIfNeeded()
             }
         }
+        //endregion
     }
+    //endregion
 
+    //region onStart: se ejecuta cuando la Activity pasa a visible
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "Mensaje del onStart")
-        // No bloqueamos aquí. Si el delay ya terminó, ejecutamos la lógica de inicio.
         isStarted = true
         if (startReady) {
             executeStartWorkIfNeeded()
         }
     }
+    //endregion
 
+    //region onRestart: se ejecuta cuando la Activity vuelve a primer plano tras onStop
     override fun onRestart() {
         super.onRestart()
-        // onRestart se llama cuando la Activity vuelve a iniciarse después de haber sido parada (onStop)
         Log.d(TAG, "Mensaje del onRestart")
         Toast.makeText(this, "onRestart detectado", Toast.LENGTH_SHORT).show()
     }
+    //endregion
 
+    //region Lógica pospuesta tras delay (ejecutada una sola vez)
     private fun executeStartWorkIfNeeded() {
         if (startWorkExecuted) return
         startWorkExecuted = true
-        // Lógica que antes estaba en onStart
         Log.d(TAG, "executeStartWorkIfNeeded: ejecutando lógica de inicio tras delay")
         Toast.makeText(this, "Prueba onStart (ejecutado tras delay)", Toast.LENGTH_SHORT).show()
         // Aquí puedes poner cualquier inicialización que quieras posponer
     }
+    //endregion
 
+    //region onResume: la Activity está lista para interactuar con el usuario
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "Mensaje del onResume")
@@ -128,22 +141,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    //endregion
 
+    //region onPause: la Activity está parcialmente visible
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "Mensaje del onPause")
         // Guardar temporalmente la nota actual en el ViewModel
         notesViewModel.setNote(editNote.text.toString())
     }
+    //endregion
 
+    //region onStop: la Activity ya no está visible
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "Mensaje del onStop")
+        Toast.makeText(this, "onStop detectado", Toast.LENGTH_SHORT).show()
+        isStarted = false
+    }
+    //endregion
+
+    //region onDestroy: limpieza final antes de destruir la Activity
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
         // Cancelar el job si la Activity se destruye antes de que termine el delay
         startDelayJob?.cancel()
     }
+    //endregion
 
-    // Persistencia temporal adicional entre recreaciones de Activity
+    //region Persistencia temporal entre recreaciones de Activity
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val current = editNote.text.toString()
@@ -157,4 +184,6 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onRestoreInstanceState: restaurando nota temporal (length=${restored.length})")
         notesViewModel.setNote(restored)
     }
+    //endregion
 }
+//endregion
