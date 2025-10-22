@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Mensaje del onCreate")
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        Toast.makeText(this, "Prueba onCreate", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "onCreate Detectado", Toast.LENGTH_SHORT).show()
 
         // Referencias UI
         editNote = findViewById(R.id.editNote)
@@ -113,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         if (startReady) {
             executeStartWorkIfNeeded()
         }
+        Toast.makeText(this, "onStart detectado", Toast.LENGTH_SHORT).show()
     }
     //endregion
 
@@ -129,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         if (startWorkExecuted) return
         startWorkExecuted = true
         Log.d(TAG, "executeStartWorkIfNeeded: ejecutando lógica de inicio tras delay")
-        Toast.makeText(this, "¡Listo! Ahora puedes escribir tu nota.", Toast.LENGTH_LONG).show()
+
         // Habilitar la UI después del delay
         editNote.isEnabled = true
         btnSave.isEnabled = true
@@ -147,6 +148,7 @@ class MainActivity : AppCompatActivity() {
                 editNote.setText(current)
             }
         }
+        Toast.makeText(this, "onResume detectado", Toast.LENGTH_SHORT).show()
     }
     //endregion
 
@@ -174,6 +176,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         Log.d(TAG, "Mensaje onDestroy")
         // Cancelar el job si la Activity se destruye antes de que termine el delay
+        Toast.makeText(this, "onDestroy detectado", Toast.LENGTH_SHORT).show()
         startDelayJob?.cancel()
     }
     //endregion
